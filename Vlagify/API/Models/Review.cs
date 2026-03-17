@@ -8,7 +8,7 @@
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 		// Foreign key to Product
-		public string ProductId { get; set; } = string.Empty;
+		public Guid ProductId { get; set; }
 		public Product Product { get; set; } = null!;
 
 		// Foreign key to ApplicationUser

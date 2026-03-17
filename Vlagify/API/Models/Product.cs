@@ -22,15 +22,15 @@
 		public List<OrderDetail> OrderItems { get; set; } = new();
 
 		// Foreign key to Category
-		public string CategoryId { get; set; } = string.Empty;
+		public Guid CategoryId { get; set; }
 		public Category Category { get; set; } = null!;
 
 		// Foreign key to Flagtype
-		public string FlagtypeId { get; set; } = string.Empty;
+		public Guid FlagtypeId { get; set; }
 		public Flagtype Flagtype { get; set; } = null!;
 
 		// Foreign key to MountingMethod
-		public string MountingMethodId { get; set; } = string.Empty;
+		public Guid MountingMethodId { get; set; }
 		public MountingMethod MountingMethod { get; set; } = null!;
 	}
 }

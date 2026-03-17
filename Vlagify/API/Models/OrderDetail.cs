@@ -12,7 +12,7 @@ public class OrderDetail
 	public OrderHeader OrderHeader { get; set; } = null!;
 
 	[Required]
-	public string ProductId { get; set; } = string.Empty;
+	public Guid ProductId { get; set; }
 	[ForeignKey("ProductId")]
 	public Product Product { get; set; } = null!;
 
