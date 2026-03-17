@@ -2,7 +2,7 @@
 {
 	public class Cart
 	{
-		public string Id { get; set; } = string.Empty;
+		public Guid Id { get; set; } = Guid.NewGuid();
 		public List<CartItem> CartItems { get; set; } = new();
 
 		// Foreign key to ApplicationUser

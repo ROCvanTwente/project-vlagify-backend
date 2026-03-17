@@ -2,7 +2,7 @@
 {
 	public class Review
 	{
-		public string Id { get; set; } = string.Empty;
+		public Guid Id { get; set; } = Guid.NewGuid();
 		public string Comment { get; set; } = string.Empty;
 		public int Rating { get; set; } = 0;
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

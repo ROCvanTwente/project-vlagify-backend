@@ -2,7 +2,7 @@
 {
 	public class Product
 	{
-		public string Id { get; set; } = string.Empty;
+		public Guid Id { get; set; } = Guid.NewGuid();
 		public string NameEnUs { get; set; } = string.Empty;
 		public string NameNlNL { get; set; } = string.Empty;
 		public string NameDeDe { get; set; } = string.Empty;

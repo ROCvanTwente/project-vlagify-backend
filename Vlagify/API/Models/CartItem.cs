@@ -2,7 +2,7 @@
 {
 	public class CartItem
 	{
-		public string Id { get; set; } = string.Empty;
+		public Guid Id { get; set; } = Guid.NewGuid();
 		public int Amount { get; set; } = 0;
 		public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
