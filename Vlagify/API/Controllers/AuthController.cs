@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -85,14 +86,110 @@ namespace API.Controllers
             }
 
             var token = GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(new 
             { 
                 message = "Login successful.",
                 token = token,
                 firstName = user.FirstName,
-                email = user.Email
+                infix = user.Infix,
+                email = user.Email,
+                roles = roles
             });
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "User not found." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var profile = new UserProfileDto
+            {
+                FirstName = user.FirstName,
+                Infix = user.Infix,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                PostalCode = user.PostalCode,
+                City = user.City,
+                Country = user.Country
+            };
+
+            return Ok(profile);
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "User not found." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            if (dto.Email != null && !string.Equals(user.Email, dto.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+                if (existingUser != null && existingUser.Id != user.Id)
+                {
+                    return BadRequest(new { message = "Email is already in use by another account." });
+                }
+
+                user.Email = dto.Email;
+                user.UserName = dto.Email;
+            }
+
+            if (dto.FirstName != null) user.FirstName = dto.FirstName;
+            if (dto.Infix != null) user.Infix = dto.Infix;
+            if (dto.LastName != null) user.LastName = dto.LastName;
+            if (dto.PhoneNumber != null) user.PhoneNumber = dto.PhoneNumber;
+            if (dto.Address != null) user.Address = dto.Address;
+            if (dto.PostalCode != null) user.PostalCode = dto.PostalCode;
+            if (dto.City != null) user.City = dto.City;
+            if (dto.Country != null) user.Country = dto.Country;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new { errors });
+            }
+
+            return Ok(new { message = "Profile updated successfully." });
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // For a JWT-based API, logging out is handled purely by the client discarding the token.
+            return Ok(new { message = "Logged out successfully." });
         }
 
         private string GenerateJwtToken(ApplicationUser user)

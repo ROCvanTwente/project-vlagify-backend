@@ -18,6 +18,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => {
 	options.Password.RequireDigit = true;
 	options.Password.RequiredLength = 6;
 })
+.AddRoles<IdentityRole>()
 .AddSignInManager<SignInManager<ApplicationUser>>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
