@@ -10,9 +10,9 @@ namespace API.Data
 			: base(options)
 		{
 		}
-
-		// --- Productgerelateerde tabellen ---
-		public DbSet<Product> Products { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
+        // --- Productgerelateerde tabellen ---
+        public DbSet<Product> Products { get; set; }
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<Flagtype> Flagtypes { get; set; }
 		public DbSet<MountingMethod> MountingMethods { get; set; }
