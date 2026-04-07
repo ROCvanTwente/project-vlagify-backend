@@ -1,6 +1,10 @@
-using API.Data;
+using API.Data; // Zorg dat dit naar jouw DbContext map verwijst
+using API.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
