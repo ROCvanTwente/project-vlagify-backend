@@ -8,42 +8,23 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Database configuratie ---
+// --- DATABASE ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString));
 
-// --- 2. Identity configuratie ---
-builder.Services.AddIdentityCore<ApplicationUser>(options => {
-	options.Password.RequireDigit = true;
-	options.Password.RequiredLength = 6;
-})
-.AddRoles<IdentityRole>()
-.AddSignInManager<SignInManager<ApplicationUser>>()
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+// --- IDENTITY ---
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// --- 3. JWT Configuratie ---
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
-
-builder.Services.AddAuthentication(options =>
+// --- CORS (BELANGRIJK) ---
+builder.Services.AddCors(options =>
 {
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = true,
-		ValidIssuer = jwtSettings["Issuer"],
-		ValidAudience = jwtSettings["Audience"],
-		IssuerSigningKey = new SymmetricSecurityKey(key)
-	};
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 
 builder.Services.AddControllers();
@@ -66,25 +47,22 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// --- 3. Middleware volgorde ---
+// --- MIDDLEWARE ---
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
+    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
 
-// Apply the CORS policy
-app.UseCors("AllowFrontend");
+// 👇 CORS hier (VOOR authentication)
+app.UseCors("AllowAll");
 
-// Belangrijk: UseAuthentication moet VÓÓR UseAuthorization staan!
 app.UseAuthentication();
 app.UseAuthorization();
 
-// --- 4. Identity Endpoints mappen ---
-// We gebruiken in plaats hiervan de AuthController met DTO's
-// app.MapIdentityApi<ApplicationUser>();
-
+// --- ENDPOINTS ---
+app.MapIdentityApi<IdentityUser>();
 app.MapControllers();
 
 app.Run();
